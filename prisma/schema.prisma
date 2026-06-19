@@ -1,13 +1,175 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
 }
-
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id        Int      @id @default(autoincrement())
+  photo     String?  @db.VarChar(200)
+  name      String   @db.VarChar(200)
+  email     String   @unique
+  password  String 
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("users")
+}
+
+model News {
+  id            Int      @id @default(autoincrement())
+  thumbnail     String?  @db.VarChar(200)
+  galleryImages Json     @default("[]") // Array of image URLs
+  title         String   @db.VarChar(255)
+  slug          String   @unique @db.VarChar(255)
+  content       String   @db.Text
+  excerpt       String?  @db.VarChar(500)
+  status        String   @default("draft") // draft, published, archived
+  views         Int      @default(0)
+  publishedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Meta data
+  metaTitle     String?  @db.VarChar(200)
+  metaDescription String? @db.VarChar(300)
+  metaKeywords  String?  @db.VarChar(200)
+  
+  // SEO & Social
+  seo           Json?    @default("{}")
+  // { "title": "...", "description": "...", "ogImage": "..." }
+  
+  @@index([slug])
+  @@index([status])
+  @@index([publishedAt])
+  @@map("news")
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(100)
+  slug        String   @unique @db.VarChar(100)
+  icon        String?  @db.VarChar(200)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([slug])
+  @@map("categories")
+}
+
+// ============================================
+// SUBCATEGORY MODEL - Sub Categories
+// ============================================
+model SubCategory {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(100)
+  slug        String   @unique @db.VarChar(100)
+  categoryId  Int      // References Category
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([categoryId])
+  @@map("sub_categories")
+}
+
+// ============================================
+// COMMENT MODEL - Comments on News
+// ============================================
+model Comment {
+  id          Int      @id @default(autoincrement())
+  content     String   @db.Text
+  authorName  String   @db.VarChar(100)
+  authorEmail String   @db.VarChar(100)
+  authorPhoto String?  @db.VarChar(200)
+  newsId      Int      // References News
+  parentId    Int?     // For nested replies (self-reference)
+  isApproved  Boolean  @default(false)
+  isSpam      Boolean  @default(false)
+  likes       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([newsId])
+  @@index([parentId])
+  @@index([isApproved])
+  @@map("comments")
+}
+
+// ============================================
+// REPLY MODEL - Replies to Comments
+// ============================================
+model Reply {
+  id          Int      @id @default(autoincrement())
+  content     String   @db.Text
+  authorName  String   @db.VarChar(100)
+  authorEmail String   @db.VarChar(100)
+  authorPhoto String?  @db.VarChar(200)
+  commentId   Int      // References Comment
+  parentId    Int?     // For nested replies (self-reference)
+  isApproved  Boolean  @default(false)
+  isSpam      Boolean  @default(false)
+  likes       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([commentId])
+  @@index([isApproved])
+  @@map("replies")
+}
+
+// ============================================
+// ADMIN MODEL - Separate Admin Table
+// ============================================
+model Admin {
+  id        Int      @id @default(autoincrement())
+  photo     String?  @db.VarChar(200)
+  name      String   @db.VarChar(200)
+  email     String   @unique
+  password  String   // Hashed password
+  role      String   @default("admin") // admin, super_admin
+  isActive  Boolean  @default(true)
+  lastLogin DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Security
+  twoFactorAuth Boolean @default(false)
+  refreshToken  String? @db.VarChar(500)
+  
+  @@map("admins")
+}
+
+// ============================================
+// TAG MODEL - Tags for News
+// ============================================
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique @db.VarChar(50)
+  slug      String   @unique @db.VarChar(50)
+  createdAt DateTime @default(now())
+  
+  @@index([slug])
+  @@map("tags")
+}
+
+// ============================================
+// NEWS TAG - Junction Table (News <-> Tags)
+// ============================================
+model NewsTag {
+  id        Int @id @default(autoincrement())
+  newsId    Int
+  tagId     Int
+  
+  @@unique([newsId, tagId]) // Prevent duplicate tag assignments
+  @@map("news_tags")
+}
+
