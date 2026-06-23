@@ -1,11 +1,9 @@
 import express from "express";
-import { newsRouter } from "./modules/news/news.router";
+import { CategoryRouter } from "./modules/category/category.router";
 
 const app = express();
 app.use(express.json())
 
-
-app.use('/news',newsRouter)
-
+app.use('/categories',CategoryRouter);
 
 export default app;
