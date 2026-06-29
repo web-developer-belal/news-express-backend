@@ -1,12 +1,5 @@
+import { helperFunction } from "../../lib/helper";
 import { prisma } from "../../lib/prisma";
-
-const generateSlug = (name: string) => {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-]/g, "");
-};
 
 export default {
   index: async () => {
@@ -14,7 +7,7 @@ export default {
   },
 
   create: async (payload: { name: string; isActive: boolean }) => {
-    const slug = generateSlug(payload.name);
+    const slug = helperFunction.generateSlug(payload.name);
 
     const existingCategory = await prisma.category.findUnique({
       where: { slug },
@@ -33,7 +26,7 @@ export default {
   },
 
   update: async (id: any, payload: { name: string; isActive: boolean }) => {
-    const slug = generateSlug(payload.name);
+    const slug = helperFunction.generateSlug(payload.name);
     const categoryId: number = parseInt(id);
     await prisma.category.findUniqueOrThrow({
       where: { id: categoryId },

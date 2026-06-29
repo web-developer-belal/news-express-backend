@@ -76,3 +76,18 @@ export type Reply = Prisma.ReplyModel
  * 
  */
 export type Admin = Prisma.AdminModel
+/**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel
+/**
+ * Model Account
+ * 
+ */
+export type Account = Prisma.AccountModel
+/**
+ * Model Verification
+ * 
+ */
+export type Verification = Prisma.VerificationModel

@@ -8,7 +8,7 @@
   "main": "src/server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev":"npx tsx watch src/server.ts"
+    "dev": "npx tsx watch src/server.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -23,6 +23,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "better-auth": "^1.6.20",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
